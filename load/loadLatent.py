@@ -58,7 +58,7 @@ def getLatentFromModel(model: Union[nn.Module, str], dataSet: torch.utils.data.D
         latent = torch.concat(latent_list, dim=0)
         latent = latent.numpy()
     if save:
-        np.savetxt('./latent_space.csv', latent, sep=',')
+        np.savetxt('./latent_space.csv', latent, delimiter=',')
 
     return latent
 
@@ -93,6 +93,6 @@ def getLatentFromCsv(path: str) -> np.ndarray:
 
     """
 
-    latent = np.genfromtxt(path, delimeter=',')
+    latent = np.genfromtxt(path, delimiter=',')
 
     return latent
