@@ -9,11 +9,34 @@ from sklearn.preprocessing import MinMaxScaler
 from typing import Optional, Union, Callable, Sequence
 import anndata as ad
 
-def feature_variance_per_latent_dimension(adata, key, n_features=20, plot_highly_variable_features=True, 
-                                          plot_cov_matrices=False, return_variable_features=True):
+def feature_variance_per_latent_dimension(adata: ad.AnnData, 
+                                          key: str, 
+                                          n_features: int =  20, 
+                                          plot_highly_variable_features: Optional[bool] = True, 
+                                          plot_cov_matrices: Optional[bool] = False, 
+                                          return_variable_features: Optional[bool] = True):
+    
+    """Calculate the n features that vary the most with each latent dimensions. Stores the results in adata.uns['variable_features_per_latent_dim']
+    
+    Parameters
+    ----------
+    adata : ad.AnnData
+        annotated data matrix
+    key : str
+        key in adata.obsm[key] where the latent space matrix is stored (observations x features)
+    n_features : int
+        number of features to return. These are the features with the highest variances along the latent dimensions
+    plot_highly_variable_features : bool
+        whether to plot the count of highest scoring features per latent dimensions
+    plot_cov_matrices : bool
+        whether to plot the covariance matrices (features x latent_dims)
+    return_variable_features : bool
+        whether to return the (scaled) covariances and highest scoring genes or just store it in adata.uns['variable_features_per_latent_dim']
+        
+    """
     
     latent = adata.obsm["z_mvae"]
-    original = adata.X
+    original = adata.X # Get the normalized counts instead!
 
     cov = np.cov(original, latent, rowvar=False)
     sub_cov = cov[:original.shape[1], original.shape[1]:]
@@ -23,7 +46,6 @@ def feature_variance_per_latent_dimension(adata, key, n_features=20, plot_highly
         sns.heatmap(scaled_covs)
         sns.clustermap(scaled_covs)
         
-    
     if plot_highly_variable_features:
         d = {}
         for dim in range(latent.shape[1]):
@@ -36,6 +58,7 @@ def feature_variance_per_latent_dimension(adata, key, n_features=20, plot_highly
             
         plt.figure(figsize = (20,8))
         ax = sns.barplot(x=list(d.keys()), y=[len(d[key]) for key in d.keys()])
+        plt.ylabel("Count")
         for item in ax.get_xticklabels():
             item.set_rotation(90)
                 
@@ -67,6 +90,10 @@ def _savefig_or_show(
     ext: str = None,
     save: Union[bool, str, None] = None,
 ):
+    
+    """
+    Not actually used so ignore
+    """
     if isinstance(save, str):
         # check whether `save` contains a figure extension
         if ext is None:
@@ -101,6 +128,25 @@ def plot_feature_variance(
     ax: Optional[plt.Axes] = None,
     **kwds,
 ):
+    
+    """\
+    Plot the n highest variable genes along the latent dim. Inspired by: https://github.com/scverse/scanpy/blob/d7e13025b931ad4afd03b4344ef5ff4a46f78b2b/scanpy/plotting/_tools/__init__.py
+    Parameters
+    ----------
+    adata : ad.AnnData
+        Annotated data matrix.
+    groups : Union[str, Sequence[str]]
+        The groups for which to show the gene ranking.
+    n_genes : int
+        Number of genes to show.
+    fontsize : int
+        Fontsize for gene names.
+    ncols: int
+        Number of panels shown per row.
+    sharey : bool
+        Controls if the y-axis of each panels should be shared. By passing
+        `sharey=False`, each panel has its own y-axis range.
+    """
     
     if 'n_panels_per_row' in kwds:
         n_panels_per_row = kwds['n_panels_per_row']
@@ -181,7 +227,7 @@ def plot_feature_variance(
 
         # print the 'score' label only on the first panel per row.
         if count % n_panels_x == 0:
-            ax.set_ylabel('score')
+            ax.set_ylabel('covariance')
 
     if sharey is True:
         ymax += 0.3 * (ymax - ymin)
