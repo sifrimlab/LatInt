@@ -119,10 +119,10 @@ def addMetadataFromPandas(adata: ad.AnnData, df_to_add: Union[pd.DataFrame, str]
 
     if dim == "obs":
         for col in df_to_add:
-            adata.obs[col] = df_to_add[col]
+            adata.obs[col] = list(df_to_add[col])
     elif dim == "var":
         for col in df_to_add:
-            adata.var[col] = df_to_add[col]
+            adata.var[col] = list(df_to_add[col])
     else:
         raise ValueError("Adding metadata to given dimension is not supported")
 
