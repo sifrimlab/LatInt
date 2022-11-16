@@ -32,8 +32,8 @@ def subsample(adata:ad.AnnData, cluster_key:str, target_cells:float=10000) -> ad
     adata_downsampled = adatas[0].concatenate(*adatas[1:])
     return adata_downsampled
 
-def clusterLatentspace(adata:ad.AnnData,cluster_key=None,show_plot:bool=False):
-    """Will run basic PCA / Neighbhors calculation and umap. Will be saved in adata.uns. If no cluster_key is given a basic leiden clustering will be run and utilized to plot on the umap.
+def clusterLatentspace(adata:ad.AnnData,cluster_key=None,show_plot:bool=False)-> list :
+    """Will run basic PCA / Neighbhors calculation and umap. Will be saved in adata.uns. If no cluster_key is given a basic leiden clustering will be run and utilized to plot on the umap. Returns a list of cluster labels for all latent space observations
 
     Parameters
     ----------
@@ -54,7 +54,10 @@ def clusterLatentspace(adata:ad.AnnData,cluster_key=None,show_plot:bool=False):
     if show_plot:
         sc.pl.umap(adata,color=cluster_key,size=12)
         
-def plotVariableLatent(adata:ad.AnnData,cluster_key='leiden',method='wilcoxon',num_features=5,variable_names=[]) -> pd.DataFrame:
+    clusters = list(adata.obs['leiden'])
+    return clusters
+        
+def plotVariableDimLatent(adata:ad.AnnData,cluster_key='leiden',method='wilcoxon',num_features=5,variable_names=[]) -> pd.DataFrame:
     """
     Takes as input AnnData and plots a dotplot of the cluster_key depending on the variable features. Methods can be chosen to rank variable genes between groups to return in a dataframe.
     Parameters
@@ -73,9 +76,31 @@ def plotVariableLatent(adata:ad.AnnData,cluster_key='leiden',method='wilcoxon',n
     -------
     DataFrame showing cluster_key and its most variable num_features 
     """
-    if not variable_names:
-        variable_names=adata.var_names
-    sc.pl.dotplot(adata, var_names=variable_names, groupby=cluster_key)
     sc.tl.rank_genes_groups(adata, groupby=cluster_key, method=method, key_added=method)
+    if not variable_names:
+        variable_names = pd.DataFrame(adata.uns[method]['names'])[:num_features].T.to_numpy().flatten()
     var_features = pd.DataFrame(adata.uns[method]['names']).head(num_features)
+    sc.pl.dotplot(adata, var_names=variable_names, groupby=cluster_key)
+
     return var_features 
+
+def variableLatentFeatures(adata:ad.AnnData,clusters:list,method='wilcoxon',num_features=3) -> pd.DataFrame :
+    """Plots the variable features between the different latent dimensions based clusters.
+    Returns a Dataframe with the top N marker genes per cluster.
+
+    Parameters
+    ----------
+    adata : ad.AnnData
+        adata
+    cluster_key :
+        cluster_key
+    method :
+        method
+    """
+    adata.obs['latent_clusters']=clusters
+    sc.tl.rank_genes_groups(adata, groupby='latent_clusters',method=method,key_added=method)
+    marker_genes = pd.DataFrame(adata.uns[method]['names'])[:3]
+    marker_genes_flattened = marker_genes.T.to_numpy().flatten()
+    sc.pl.dotplot(adata,var_names=marker_genes_flattened,groupby='latent_clusters')
+    return marker_genes
+    
