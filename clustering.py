@@ -1,6 +1,7 @@
 import pandas as pd
 import scanpy as sc 
 import anndata as ad
+from load import addMetadataFromPandas
 from typing import Tuple
 
 def exportLatent(adata:ad.AnnData,latent_key:str) -> ad.AnnData:
@@ -71,7 +72,7 @@ def clusterLatentspace(adata:ad.AnnData,cluster_key=None,show_plot:bool=False):
     if show_plot:
         sc.pl.umap(adata,color=cluster_key,size=12)
         
-def plotVariableLatent(adata:ad.AnnData,cluster_key='leiden',method='wilcoxon',num_features=5,variable_names=[]) -> Tuple:
+def plotVariableLatent(adata:ad.AnnData,cluster_key='leiden',method='wilcoxon',num_features=5,variable_names=[]) -> pd.DataFrame:
     """
     Takes as input AnnData and plots a dotplot of the cluster_key depending on the variable features. Methods can be chosen to rank variable genes between groups to return in a dataframe.
     Parameters
