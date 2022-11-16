@@ -6,7 +6,6 @@ import scanpy as sc
 import anndata as ad
 from torch import nn
 import torch.nn as nn
-from utils import ImageDataset
 
 
 def getLatentFromModel(model: Union[nn.Module, str], dataSet: torch.utils.data.Dataset, device = torch.device("cuda", 0), batch_size:int = 256, save:bool =False) -> np.ndarray:
