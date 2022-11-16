@@ -6,9 +6,6 @@ from typing import Union, Tuple
 import matplotlib.pyplot as plt
 from pandas.api.types import is_numeric_dtype
 
-
-
-
 def plotLatentCorrelation(latent: Union[ad.AnnData, np.ndarray, str], key:str, meta_var = "") -> Tuple:
     if isinstance(latent, ad.AnnData):
         adata = latent
