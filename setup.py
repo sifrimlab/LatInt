@@ -33,6 +33,7 @@ setuptools.setup(
     install_requires = [
         "numpy",
         "pandas",
+        "tqdm",
         "matplotlib",
         "torch",
         "scanpy",

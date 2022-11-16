@@ -1,6 +1,7 @@
 import os 
 import re
 import torch
+from tqdm import tqdm
 import numpy as np
 import scanpy as sc
 import pandas as pd
@@ -8,6 +9,7 @@ import anndata as ad
 from torch import nn
 import torch.nn as nn
 from typing import Union,List
+from torch.utils.data import DataLoader
 
 
 
@@ -46,7 +48,7 @@ def getLatentFromModel(model: Union[nn.Module, str], dataSet: torch.utils.data.D
     if "embed" not in dir(model):
         raise KeyError("model does not implement embed function, latent space cannot be calculated")
 
-    train_loader = dataLoader(dataSet, batch_size=batch_size, shuffle=False)
+    train_loader = DataLoader(dataSet, batch_size=batch_size, shuffle=False)
 
     with torch.no_grad():
         model.eval()
