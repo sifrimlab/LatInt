@@ -4,24 +4,6 @@ import anndata as ad
 from load import addMetadataFromPandas
 from typing import Tuple
 
-def exportLatent(adata:ad.AnnData,latent_key:str) -> ad.AnnData:
-    """Takes anndata and latent key as input and returns a new anndata object of the specified latent space with the metadata of the original object
-
-    Parameters
-    ----------
-    adata : ad.AnnData
-        adata
-    latent_key : str
-        latent_key
-
-    Returns
-    -------
-    ad.AnnData
-
-    """
-    bdata = ad.AnnData(adata.obsm[latent_key])
-    addMetadataFromPandas(bdata,adata.obs)
-    return bdata
 
 def subsample(adata:ad.AnnData, cluster_key:str, target_cells:float=10000) -> ad.AnnData:
     """ Takes as input anndata object and will subsample target cells per cluster based on cluster key. If no cluster key is given will subsample 20% of entire anndata. 

@@ -126,6 +126,27 @@ def addMetadataFromPandas(adata: ad.AnnData, df_to_add: Union[pd.DataFrame, str]
     else:
         raise ValueError("Adding metadata to given dimension is not supported")
 
+
+
+def exportLatent(adata:ad.AnnData,latent_key:str) -> ad.AnnData:
+    """Takes anndata and latent key as input and returns a new anndata object of the specified latent space with the metadata of the original object
+
+    Parameters
+    ----------
+    adata : ad.AnnData
+        adata
+    latent_key : str
+        latent_key
+
+    Returns
+    -------
+    ad.AnnData
+
+    """
+    bdata = ad.AnnData(adata.obsm[latent_key])
+    addMetadataFromPandas(bdata,adata.obs)
+    return bdata
+
 def addMetadataFromFileList(adata:ad.AnnData, file_list: List, delim:str = "_"):
     """ Add metadata extracted for the basenames of filepaths to AnnData object
 
