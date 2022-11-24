@@ -6,10 +6,10 @@ from typing import Union, Tuple
 import matplotlib.pyplot as plt
 from pandas.api.types import is_numeric_dtype
 
-def plotLatentCorrelation(latent: Union[ad.AnnData, np.ndarray, str], key:str, meta_var = "") -> Tuple:
+def plotLatentCorrelation(latent: Union[ad.AnnData, np.ndarray, str], latent_key:str, meta_var = "") -> Tuple:
     if isinstance(latent, ad.AnnData):
         adata = latent
-        latent = adata.obsm[key]
+        latent = adata.obsm[latent_key]
         ticks = (range(len(adata.var_names)), adata.var_names)
         if not meta_var:
             corcoef = np.corrcoef(latent, rowvar=False)
@@ -20,7 +20,7 @@ def plotLatentCorrelation(latent: Union[ad.AnnData, np.ndarray, str], key:str, m
     elif isinstance(latent, str):
         if latent.endswith("h5ad"):
             adata = ad.read_h5ad(latent)
-            latent = adata.obsm[key]
+            latent = adata.obsm[latent_key]
             corcoef = np.corrcoef(latent, rowvar=False)
         elif latent.endswith("csv"):
             latent = np.genfromtxt(latent, delimiter=",")
@@ -33,7 +33,7 @@ def plotLatentCorrelation(latent: Union[ad.AnnData, np.ndarray, str], key:str, m
         plt.yticks(*ticks)
     plt.show()
 
-def plotLatentCorrelationWithMetaVariable(adata: ad.AnnData, key:str, meta_var:str):
+def plotLatentCorrelationWithMetaVariable(adata: ad.AnnData, latent_key:str, meta_var:str):
 
     # Sourced from: https://stackoverflow.com/questions/30143417/computing-the-correlation-coefficient-between-two-multi-dimensional-arrays/30143754#30143754
     def corr2_coeff(A, B):
@@ -48,7 +48,7 @@ def plotLatentCorrelationWithMetaVariable(adata: ad.AnnData, key:str, meta_var:s
         # Finally get corr coeff
         return np.dot(A_mA, B_mB.T) / np.sqrt(np.dot(ssA[:, None],ssB[None]))
 
-    latent = adata.obsm[key]
+    latent = adata.obsm[latent_key]
 
     tmp_df = pd.DataFrame(adata.obs[meta_var])
 
