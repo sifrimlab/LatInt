@@ -20,3 +20,5 @@ Contents
 
    usage
    api
+
+Latint has its documentation hosted on Read the Docs
